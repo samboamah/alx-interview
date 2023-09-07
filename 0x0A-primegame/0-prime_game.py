@@ -1,86 +1,78 @@
 #!/usr/bin/python3
 """
-Module 0-prime_game
+Prime Game
 """
 
 
-def isPrime(num):
+def findMultiples(num, targets):
     """
-    checks if a num
-    is a prime number
+    Finds multiples of a given number within a list
     """
-    if num < 2:
+    for i in targets:
+        if i % num == 0:
+            targets.remove(i)
+    return targets
+
+
+def isPrime(i):
+    """
+    Check if a number is prime.
+    """
+    if i == 1:
         return False
-    for i in range(2, num):
-        if (num % i) == 0:
+    for j in range(2, i):
+        if i % j == 0:
             return False
     return True
 
 
-def getPrime(ints):
+def findPrimes(n):
     """
-    Returns a prime number
-    from a set
+    Dispatch a given set into prime numbers and non-prime numbers.
     """
-    for n in ints:
-        if isPrime(n):
-            return n
-    return None
-
-
-def removePrimeNo(ints, prime):
-    """
-    removes a prime number from a set
-    """
-    ints.remove(prime)
-
-
-def removeMultiples(ints, number, player):
-    """removes multiples of a number"""
-    for x in ints.copy():
-        if (x % number) == 0:
-            # print(f"{player} removes {x}")
-            ints.remove(x)
+    counter = 0
+    target = list(n)
+    for i in range(1, len(target) + 1):
+        if isPrime(i):
+            counter += 1
+            target.remove(i)
+            target = findMultiples(i, target)
+        else:
+            pass
+    return counter
 
 
 def isWinner(x, nums):
     """
-    Determines the winner
+    Maria and Ben are playing a game.Given a set of consecutive integers
+    starting from 1 up to and including n, they take turns choosing a
+    prime number from the set and removing that number and its
+    multiples from the set.
+    The player that cannot make a move loses the game.
+
+    They play x rounds of the game, where n may be different for each round.
+    Assuming Maria always goes first and both players play optimally,
+    determine who the winner of each game is.
     """
-    m_wins = 0
-    b_wins = 0
-    canPlay = True
-    times = 0
-
-    if not x or not nums:
-        return None
-
-    for n in nums:
-        ints = set([n for n in range(1, n + 1)])
-        player = "m"
-        while times <= x:
-            prime = getPrime(ints)
-            # A win for the other player
-            # when no more prime numbers exist
-            # print(f"{player} picks {prime}")
-            if prime is None:
-                if player == "m":
-                    b_wins += 1
-                else:
-                    m_wins += 1
+    players = {'Maria': 0, 'Ben': 0}
+    cluster = set()
+    for elem in range(x):
+        nums.sort()
+        num = nums[elem]
+        for i in range(1, num + 1):
+            cluster.add(i)
+            if i == num + 1:
                 break
-            # remove prime number
-            # print(f"{player} removes {prime}")
-            removePrimeNo(ints, prime)
-            removeMultiples(ints, prime, player)
+        temp = findPrimes(cluster)
 
-            if player == "b":
-                player = "m"
-            else:
-                player = "b"
-            times += 1
-        times = 0
+        if temp % 2 == 0:
+            players['Ben'] += 1
+        elif temp % 2 != 0:
+            players['Maria'] += 1
 
-    if m_wins == b_wins:
+    if players['Maria'] > players['Ben']:
+        return 'Maria'
+    elif players['Maria'] < players['Ben']:
+        return 'Ben'
+    else:
         return None
-    return "Maria" if m_wins > b_wins else "Ben"
